@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 
-// Extend session data
 declare module "express-session" {
   interface SessionData {
     userId?: number;
@@ -15,18 +14,15 @@ const GITHUB_CLIENT_ID =
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || "";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // GitHub OAuth routes
   app.get("/api/auth/github", (req, res) => {
     console.log(`[OAuth] Starting GitHub OAuth flow`);
     console.log(`[OAuth] Request headers host: ${req.get("host")}`);
     console.log(`[OAuth] Request protocol: ${req.protocol}`);
     console.log(`[OAuth] REPLIT_DOMAINS env: ${process.env.REPLIT_DOMAINS}`);
 
-    // Determine the correct host for Replit environment
     let host = req.get("host");
     let protocol = req.protocol;
 
-    // If we're in a Replit environment, use the Replit domain
     if (process.env.REPLIT_DOMAINS) {
       host = process.env.REPLIT_DOMAINS;
       protocol = "https";
@@ -40,17 +36,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       `[OAuth] GitHub Client ID: ${GITHUB_CLIENT_ID ? "Present" : "Missing"}`
     );
 
-    // Generate random state and add timestamp to force fresh authorization
     const state = Math.random().toString(36).substring(2, 15);
     const timestamp = Date.now();
 
-    // Check if this is a forced logout (from query params)
     const isForceLogout = req.query.force_logout;
 
-    // For forced logout, add parameters that might trigger re-authorization
     let githubAuthUrl;
     if (isForceLogout) {
-      // Try different scope order or additional parameters to force re-auth
       githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user:email,repo&redirect_uri=${encodeURIComponent(
         redirectUri
       )}&state=${state}&t=${timestamp}&allow_signup=false`;
@@ -72,7 +64,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const { code, error, error_description } = req.query;
 
-    // Handle authorization errors (user denied access)
     if (error) {
       console.log(
         `[OAuth Callback] Authorization error: ${error} - ${error_description}`
@@ -88,7 +79,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log(`[OAuth Callback] Authorization code received: ${code}`);
 
     try {
-      // Exchange code for access token
       const tokenResponse = await fetch(
         "https://github.com/login/oauth/access_token",
         {
@@ -115,7 +105,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const accessToken = tokenData.access_token;
 
-      // Get user info from GitHub
       const userResponse = await fetch("https://api.github.com/user", {
         headers: {
           Authorization: `token ${accessToken}`,
@@ -125,7 +114,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const userData = await userResponse.json();
 
-      // Create or update user in storage
       let user = await storage.getUserByGithubId(userData.id.toString());
 
       if (user) {
@@ -142,7 +130,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Store user info in session
       if (req.session) {
         req.session.userId = user?.id;
         req.session.accessToken = accessToken;
@@ -178,11 +165,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const accessToken = req.session?.accessToken;
 
     try {
-      // Revoke GitHub access token if it exists
       if (accessToken) {
         console.log(`[Logout] Revoking GitHub access token`);
 
-        // First revoke the specific token
         const revokeTokenResponse = await fetch(
           `https://api.github.com/applications/${GITHUB_CLIENT_ID}/token`,
           {
@@ -204,7 +189,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `[Logout] Token revocation status: ${revokeTokenResponse.status}`
         );
 
-        // Also try to revoke all grants for the application (force re-authorization)
         const revokeGrantResponse = await fetch(
           `https://api.github.com/applications/${GITHUB_CLIENT_ID}/grant`,
           {
@@ -238,10 +222,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       console.error(`[Logout] Error revoking token:`, error);
-      // Continue with logout even if token revocation fails
     }
 
-    // Destroy session
     req.session.destroy((err: Error | null) => {
       if (err) {
         console.error(`[Logout] Session destruction error:`, err);
@@ -252,7 +234,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Repository routes
   app.get("/api/repositories", async (req, res) => {
     const userId = req.session?.userId;
     const accessToken = req.session?.accessToken;
@@ -262,7 +243,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      // Fetch repositories from GitHub API
       const response = await fetch(
         "https://api.github.com/user/repos?sort=updated&per_page=100",
         {
@@ -275,13 +255,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const repos = await response.json();
 
-      // Get current local repositories for this user
       const currentLocalRepos = await storage.getRepositoriesByUserId(userId);
       const githubRepoIds = new Set(
         repos.map((repo: { id: number }) => repo.id.toString())
       );
 
-      // Remove repositories that no longer exist on GitHub
       for (const localRepo of currentLocalRepos) {
         4;
         if (!githubRepoIds.has(localRepo.githubId)) {
@@ -292,7 +270,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Store/update repositories in local storage and return only existing ones
       const savedRepos = [];
       for (const repo of repos) {
         let existingRepo = await storage.getRepositoryByGithubId(
@@ -320,8 +297,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // File routes
-  // Handle case when no repository is selected (return empty array)
   app.get("/api/repositories/files", async (req, res) => {
     res.json([]);
   });
@@ -342,7 +317,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Repository not found" });
       }
 
-      // Fetch repository content from GitHub API
       const response = await fetch(
         `https://api.github.com/repos/${repository.fullName}/git/trees/main?recursive=1`,
         {
@@ -355,7 +329,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const data = await response.json();
 
-      // Filter for markdown files
       const markdownFiles =
         data.tree?.filter(
           (file: { type: string; path: string }) =>
@@ -385,11 +358,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Repository not found" });
       }
 
-      // Check local storage first
       let file = await storage.getMarkdownFile(parseInt(repoId), filePath);
 
       if (!file) {
-        // Fetch from GitHub API
         const response = await fetch(
           `https://api.github.com/repos/${repository.fullName}/contents/${filePath}`,
           {
@@ -418,7 +389,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           content.substring(0, 100) + (content.length > 100 ? "..." : "")
         );
 
-        // Store in local storage
         file = await storage.createOrUpdateMarkdownFile({
           repositoryId: parseInt(repoId),
           path: filePath,
@@ -450,15 +420,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Repository not found" });
       }
 
-      // Get access token for potential GitHub update
       const accessToken = req.session?.accessToken;
 
-      // Update in local storage
       const file = await storage.createOrUpdateMarkdownFile({
         repositoryId: parseInt(repoId),
         path: filePath,
         content,
-        sha: "local", // Local changes - not pushed to GitHub
+        sha: "local", 
       });
 
       console.log(
@@ -475,7 +443,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Push changes to GitHub
   app.post(
     "/api/repositories/:repoId/files/:filePath(*)/push",
     async (req, res) => {
@@ -495,7 +462,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "Repository not found" });
         }
 
-        // Get current file SHA from GitHub
         const getResponse = await fetch(
           `https://api.github.com/repos/${repository.fullName}/contents/${filePath}`,
           {
@@ -512,14 +478,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sha = currentFile.sha;
         }
 
-        // Prepare the update payload
         const updatePayload = {
           message: `Update ${filePath} via GitMarkDownload`,
           content: Buffer.from(content).toString("base64"),
-          ...(sha && { sha }), // Include SHA if file exists
+          ...(sha && { sha }), 
         };
 
-        // Push to GitHub
         const updateResponse = await fetch(
           `https://api.github.com/repos/${repository.fullName}/contents/${filePath}`,
           {
@@ -544,7 +508,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const result = await updateResponse.json();
 
-        // Update local storage with new SHA
         await storage.createOrUpdateMarkdownFile({
           repositoryId: parseInt(repoId),
           path: filePath,

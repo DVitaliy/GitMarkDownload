@@ -24,7 +24,6 @@
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
 
-  /* GitHub-inspired colors */
   --github-blue: hsl(207, 90%, 54%);
   --github-dark: hsl(218, 11%, 15%);
   --github-gray: hsl(218, 11%, 40%);
@@ -66,7 +65,6 @@
   }
 }
 
-/* Custom utility classes */
 .github-blue {
   color: var(--github-blue);
 }
@@ -91,7 +89,6 @@
   border-color: var(--github-border);
 }
 
-/* Custom scrollbar styles */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
@@ -109,7 +106,6 @@
   background: hsl(240, 5%, 44%);
 }
 
-/* Enhanced button visibility */
 .btn-visible {
   @apply border border-solid shadow-sm transition-all duration-200;
 }
@@ -118,7 +114,6 @@
   @apply shadow-md transform scale-105;
 }
 
-/* Improved focus states */
 button:focus,
 input:focus,
 textarea:focus,
@@ -126,7 +121,6 @@ select:focus {
   @apply outline-2 outline-blue-500 outline-offset-2;
 }
 
-/* Better contrast for ghost buttons */
 .btn-ghost-enhanced {
   @apply bg-gray-50 border border-gray-300 text-gray-700;
 }
@@ -135,7 +129,6 @@ select:focus {
   @apply bg-gray-100 border-gray-400 text-gray-900;
 }
 
-/* Markdown content styling */
 .markdown-content h1 {
   @apply text-2xl font-bold mb-4 border-b border-gray-200 pb-2;
 }
@@ -176,7 +169,6 @@ select:focus {
   @apply text-blue-600 hover:underline;
 }
 
-/* Editor improvements */
 .markdown-editor textarea {
   font-family: 'Fira Code', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   line-height: 1.6;
@@ -189,7 +181,6 @@ select:focus {
   ring: none !important;
 }
 
-/* Remove all focus borders from textarea globally */
 textarea:focus,
 textarea:focus-visible,
 textarea:active {

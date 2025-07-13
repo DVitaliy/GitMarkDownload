@@ -15,7 +15,7 @@ interface MarkdownEditorProps {
   fileName: string;
   isLoading: boolean;
   selectedRepo?: Repository;
-  originalContent?: string; // Content from GitHub for comparison
+  originalContent?: string;
 }
 
 export default function MarkdownEditor({ content, onChange, fileName, isLoading, selectedRepo, originalContent }: MarkdownEditorProps) {
@@ -27,10 +27,8 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
 
 
 
-  // Check if content differs from original GitHub content
   const hasChangesFromOriginal = originalContent !== undefined && content !== originalContent;
 
-  // Auto-save functionality
   const autoSaveMutation = useMutation({
     mutationFn: (data: { repoId: number; filePath: string; content: string }) =>
       apiRequest("PUT", `/api/repositories/${data.repoId}/files/${data.filePath}`, {
@@ -65,25 +63,22 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
     },
   });
 
-  // Auto-save when content changes
   useEffect(() => {
     if (!selectedRepo || !fileName || content === originalContent) return;
 
     setHasUnsavedChanges(true);
 
-    // Clear existing timeout
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
     }
 
-    // Set new timeout for auto-save
     autoSaveTimeoutRef.current = setTimeout(() => {
       autoSaveMutation.mutate({
         repoId: selectedRepo.id,
         filePath: fileName,
         content: content,
       });
-    }, 1000); // Auto-save after 1 second of inactivity
+    }, 1000);
 
     return () => {
       if (autoSaveTimeoutRef.current) {
