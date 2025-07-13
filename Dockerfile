@@ -14,4 +14,4 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules # For production dependencies
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/index.js"]
