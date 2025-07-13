@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* GitHub-inspired colors */
+  --github-blue: hsl(207, 90%, 54%);
+  --github-dark: hsl(218, 11%, 15%);
+  --github-gray: hsl(218, 11%, 40%);
+  --github-light: hsl(220, 14%, 96%);
+  --github-sidebar: hsl(220, 13%, 9%);
+  --github-border: hsl(216, 12%, 84%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Custom utility classes */
+.github-blue {
+  color: var(--github-blue);
+}
+
+.github-dark {
+  color: var(--github-dark);
+}
+
+.github-gray {
+  color: var(--github-gray);
+}
+
+.github-light {
+  background-color: var(--github-light);
+}
+
+.github-sidebar {
+  background-color: var(--github-sidebar);
+}
+
+.github-border {
+  border-color: var(--github-border);
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: hsl(240, 3.7%, 15.9%);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(240, 5%, 34%);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(240, 5%, 44%);
+}
+
+/* Enhanced button visibility */
+.btn-visible {
+  @apply border border-solid shadow-sm transition-all duration-200;
+}
+
+.btn-visible:hover {
+  @apply shadow-md transform scale-105;
+}
+
+/* Improved focus states */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  @apply outline-2 outline-blue-500 outline-offset-2;
+}
+
+/* Better contrast for ghost buttons */
+.btn-ghost-enhanced {
+  @apply bg-gray-50 border border-gray-300 text-gray-700;
+}
+
+.btn-ghost-enhanced:hover {
+  @apply bg-gray-100 border-gray-400 text-gray-900;
+}
+
+/* Markdown content styling */
+.markdown-content h1 {
+  @apply text-2xl font-bold mb-4 border-b border-gray-200 pb-2;
+}
+
+.markdown-content h2 {
+  @apply text-xl font-semibold mb-3 border-b border-gray-200 pb-1;
+}
+
+.markdown-content h3 {
+  @apply text-lg font-semibold mb-2;
+}
+
+.markdown-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.markdown-content ul {
+  @apply list-disc list-inside mb-4 ml-4;
+}
+
+.markdown-content ol {
+  @apply list-decimal list-inside mb-4 ml-4;
+}
+
+.markdown-content code {
+  @apply bg-gray-100 px-1 rounded text-sm font-mono;
+}
+
+.markdown-content pre {
+  @apply bg-gray-100 p-4 rounded-lg mb-4 overflow-x-auto font-mono text-sm;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-gray-200 pl-4 italic mb-4 text-gray-600;
+}
+
+.markdown-content a {
+  @apply text-blue-600 hover:underline;
+}
+
+/* Editor improvements */
+.markdown-editor textarea {
+  font-family: 'Fira Code', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+.markdown-editor textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  ring: none !important;
+}
+
+/* Remove all focus borders from textarea globally */
+textarea:focus,
+textarea:focus-visible,
+textarea:active {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  ring: none !important;
+}
+
+
