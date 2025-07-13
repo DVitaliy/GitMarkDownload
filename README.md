@@ -1,8 +1,8 @@
-# GitMarkDownload - GitHub Markdown Editor
+# MD2PDF.download - GitHub Markdown Editor
 
 ## Overview
 
-GitMarkDownload is a web application that provides a GitHub-integrated markdown editor with real-time preview functionality. Users can authenticate with GitHub, browse their repositories, and edit markdown files with a side-by-side editor and preview interface.
+MD2PDF.download is a web application that provides a GitHub-integrated markdown editor with real-time preview functionality. Users can authenticate with GitHub, browse their repositories, and edit markdown files with a side-by-side editor and preview interface.
 
 ## User Preferences
 
