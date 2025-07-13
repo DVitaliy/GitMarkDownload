@@ -1,12 +1,6 @@
-import type { Express, Request } from "express";
+import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import {
-  insertUserSchema,
-  insertRepositorySchema,
-  insertMarkdownFileSchema,
-} from "@shared/schema";
-import { z } from "zod";
 
 // Extend session data
 declare module "express-session" {
@@ -43,7 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     console.log(`[OAuth] Final redirect URI: ${redirectUri}`);
     console.log(
-      `[OAuth] GitHub Client ID: ${GITHUB_CLIENT_ID ? "Present" : "Missing"}`,
+      `[OAuth] GitHub Client ID: ${GITHUB_CLIENT_ID ? "Present" : "Missing"}`
     );
 
     // Generate random state and add timestamp to force fresh authorization
@@ -57,9 +51,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     let githubAuthUrl;
     if (isForceLogout) {
       // Try different scope order or additional parameters to force re-auth
-      githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user:email,repo&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&t=${timestamp}&allow_signup=false`;
+      githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user:email,repo&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}&state=${state}&t=${timestamp}&allow_signup=false`;
     } else {
-      githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo,user:email&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+      githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo,user:email&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}&state=${state}`;
     }
 
     console.log(`[OAuth] Force logout: ${!!isForceLogout}`);
@@ -77,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Handle authorization errors (user denied access)
     if (error) {
       console.log(
-        `[OAuth Callback] Authorization error: ${error} - ${error_description}`,
+        `[OAuth Callback] Authorization error: ${error} - ${error_description}`
       );
       return res.redirect("/auth?error=access_denied");
     }
@@ -104,14 +102,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             client_secret: GITHUB_CLIENT_SECRET,
             code,
           }),
-        },
+        }
       );
 
       const tokenData = await tokenResponse.json();
 
       if (tokenData.error) {
         throw new Error(
-          tokenData.error_description || "Failed to get access token",
+          tokenData.error_description || "Failed to get access token"
         );
       }
 
@@ -133,7 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (user) {
         user = await storage.updateUserToken(
           userData.id.toString(),
-          accessToken,
+          accessToken
         );
       } else {
         user = await storage.createUser({
@@ -158,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", async (req, res) => {
-    const userId = req.session?.userId
+    const userId = req.session?.userId;
     if (!userId) {
       return res.status(401).json({ message: "Not authenticated" });
     }
@@ -190,18 +188,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             method: "DELETE",
             headers: {
-              Authorization: `Basic ${Buffer.from(`${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}`).toString("base64")}`,
+              Authorization: `Basic ${Buffer.from(
+                `${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}`
+              ).toString("base64")}`,
               Accept: "application/vnd.github.v3+json",
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               access_token: accessToken,
             }),
-          },
+          }
         );
 
         console.log(
-          `[Logout] Token revocation status: ${revokeTokenResponse.status}`,
+          `[Logout] Token revocation status: ${revokeTokenResponse.status}`
         );
 
         // Also try to revoke all grants for the application (force re-authorization)
@@ -210,18 +210,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           {
             method: "DELETE",
             headers: {
-              Authorization: `Basic ${Buffer.from(`${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}`).toString("base64")}`,
+              Authorization: `Basic ${Buffer.from(
+                `${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}`
+              ).toString("base64")}`,
               Accept: "application/vnd.github.v3+json",
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               access_token: accessToken,
             }),
-          },
+          }
         );
 
         console.log(
-          `[Logout] Grant revocation status: ${revokeGrantResponse.status}`,
+          `[Logout] Grant revocation status: ${revokeGrantResponse.status}`
         );
 
         const revokeResponse = revokeTokenResponse;
@@ -230,7 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`[Logout] GitHub token revoked successfully`);
         } else {
           console.log(
-            `[Logout] Failed to revoke GitHub token: ${revokeResponse.status} ${revokeResponse.statusText}`,
+            `[Logout] Failed to revoke GitHub token: ${revokeResponse.status} ${revokeResponse.statusText}`
           );
         }
       }
@@ -268,7 +270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             Authorization: `token ${accessToken}`,
             "User-Agent": "GitMarkdown-App",
           },
-        },
+        }
       );
 
       const repos = await response.json();
@@ -276,14 +278,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get current local repositories for this user
       const currentLocalRepos = await storage.getRepositoriesByUserId(userId);
       const githubRepoIds = new Set(
-        repos.map((repo: { id: number }) => repo.id.toString()),
+        repos.map((repo: { id: number }) => repo.id.toString())
       );
 
       // Remove repositories that no longer exist on GitHub
-      for (const localRepo of currentLocalRepos) {4
+      for (const localRepo of currentLocalRepos) {
+        4;
         if (!githubRepoIds.has(localRepo.githubId)) {
           console.log(
-            `[Sync] Removing deleted repository: ${localRepo.fullName}`,
+            `[Sync] Removing deleted repository: ${localRepo.fullName}`
           );
           await storage.deleteRepository(localRepo.id);
         }
@@ -294,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const repo of repos) {
         let existingRepo = await storage.getRepositoryByGithubId(
           repo.id.toString(),
-          userId,
+          userId
         );
 
         if (!existingRepo) {
@@ -347,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             Authorization: `token ${accessToken}`,
             "User-Agent": "GitMarkdown-App",
           },
-        },
+        }
       );
 
       const data = await response.json();
@@ -356,7 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const markdownFiles =
         data.tree?.filter(
           (file: { type: string; path: string }) =>
-            file.type === "blob" && file.path.endsWith(".md"),
+            file.type === "blob" && file.path.endsWith(".md")
         ) || [];
 
       res.json(markdownFiles);
@@ -394,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               Authorization: `token ${accessToken}`,
               "User-Agent": "GitMarkdown-App",
             },
-          },
+          }
         );
 
         if (!response.ok) {
@@ -412,7 +415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const content = Buffer.from(data.content, "base64").toString("utf-8");
         console.log(
           `[File Content] Decoded content for ${filePath}:`,
-          content.substring(0, 100) + (content.length > 100 ? "..." : ""),
+          content.substring(0, 100) + (content.length > 100 ? "..." : "")
         );
 
         // Store in local storage
@@ -459,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       console.log(
-        `[File Save] Successfully saved ${filePath} locally. Content length: ${content.length}`,
+        `[File Save] Successfully saved ${filePath} locally. Content length: ${content.length}`
       );
 
       res.json({
@@ -500,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               Authorization: `token ${accessToken}`,
               "User-Agent": "GitMarkdown-App",
             },
-          },
+          }
         );
 
         let sha = null;
@@ -527,18 +530,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(updatePayload),
-          },
+          }
         );
 
         if (!updateResponse.ok) {
           const error = await updateResponse.json();
           console.error("GitHub update error:", error);
-          return res
-            .status(400)
-            .json({
-              message: "Failed to push to GitHub",
-              error: error.message,
-            });
+          return res.status(400).json({
+            message: "Failed to push to GitHub",
+            error: error.message,
+          });
         }
 
         const result = await updateResponse.json();
@@ -561,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("GitHub push error:", error);
         res.status(500).json({ message: "Failed to push to GitHub" });
       }
-    },
+    }
   );
 
   const httpServer = createServer(app);
