@@ -1,22 +1,38 @@
-import { users, repositories, markdownFiles, type User, type InsertUser, type Repository, type InsertRepository, type MarkdownFile, type InsertMarkdownFile } from "@shared/schema";
+import {
+  type User,
+  type InsertUser,
+  type Repository,
+  type InsertRepository,
+  type MarkdownFile,
+  type InsertMarkdownFile,
+} from "@shared/schema";
 
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByGithubId(githubId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUserToken(githubId: string, accessToken: string): Promise<User | undefined>;
+  updateUserToken(
+    githubId: string,
+    accessToken: string
+  ): Promise<User | undefined>;
 
   // Repository operations
   getRepositoriesByUserId(userId: number): Promise<Repository[]>;
   getRepository(id: number): Promise<Repository | undefined>;
   createRepository(repository: InsertRepository): Promise<Repository>;
-  getRepositoryByGithubId(githubId: string, userId: number): Promise<Repository | undefined>;
+  getRepositoryByGithubId(
+    githubId: string,
+    userId: number
+  ): Promise<Repository | undefined>;
   deleteRepository(id: number): Promise<void>;
 
   // File operations
   getMarkdownFilesByRepositoryId(repositoryId: number): Promise<MarkdownFile[]>;
-  getMarkdownFile(repositoryId: number, path: string): Promise<MarkdownFile | undefined>;
+  getMarkdownFile(
+    repositoryId: number,
+    path: string
+  ): Promise<MarkdownFile | undefined>;
   createOrUpdateMarkdownFile(file: InsertMarkdownFile): Promise<MarkdownFile>;
   deleteMarkdownFile(repositoryId: number, path: string): Promise<void>;
 }
@@ -43,22 +59,27 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByGithubId(githubId: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.githubId === githubId);
+    return Array.from(this.users.values()).find(
+      (user) => user.githubId === githubId
+    );
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { 
-      ...insertUser, 
-      id, 
+    const user: User = {
+      ...insertUser,
+      id,
       avatarUrl: insertUser.avatarUrl || null,
-      createdAt: new Date() 
+      createdAt: new Date(),
     };
     this.users.set(id, user);
     return user;
   }
 
-  async updateUserToken(githubId: string, accessToken: string): Promise<User | undefined> {
+  async updateUserToken(
+    githubId: string,
+    accessToken: string
+  ): Promise<User | undefined> {
     const user = await this.getUserByGithubId(githubId);
     if (user) {
       user.accessToken = accessToken;
@@ -69,49 +90,68 @@ export class MemStorage implements IStorage {
   }
 
   async getRepositoriesByUserId(userId: number): Promise<Repository[]> {
-    return Array.from(this.repositories.values()).filter(repo => repo.userId === userId);
+    return Array.from(this.repositories.values()).filter(
+      (repo) => repo.userId === userId
+    );
   }
 
   async getRepository(id: number): Promise<Repository | undefined> {
     return this.repositories.get(id);
   }
 
-  async createRepository(insertRepository: InsertRepository): Promise<Repository> {
+  async createRepository(
+    insertRepository: InsertRepository
+  ): Promise<Repository> {
     const id = this.currentRepoId++;
-    const repository: Repository = { 
-      ...insertRepository, 
+    const repository: Repository = {
+      ...insertRepository,
       id,
-      isPrivate: insertRepository.isPrivate || false
+      isPrivate: insertRepository.isPrivate || false,
     };
     this.repositories.set(id, repository);
     return repository;
   }
 
-  async getRepositoryByGithubId(githubId: string, userId: number): Promise<Repository | undefined> {
+  async getRepositoryByGithubId(
+    githubId: string,
+    userId: number
+  ): Promise<Repository | undefined> {
     return Array.from(this.repositories.values()).find(
-      repo => repo.githubId === githubId && repo.userId === userId
+      (repo) => repo.githubId === githubId && repo.userId === userId
     );
   }
 
-  async getMarkdownFilesByRepositoryId(repositoryId: number): Promise<MarkdownFile[]> {
-    return Array.from(this.markdownFiles.values()).filter(file => file.repositoryId === repositoryId);
+  async getMarkdownFilesByRepositoryId(
+    repositoryId: number
+  ): Promise<MarkdownFile[]> {
+    return Array.from(this.markdownFiles.values()).filter(
+      (file) => file.repositoryId === repositoryId
+    );
   }
 
-  async getMarkdownFile(repositoryId: number, path: string): Promise<MarkdownFile | undefined> {
+  async getMarkdownFile(
+    repositoryId: number,
+    path: string
+  ): Promise<MarkdownFile | undefined> {
     return Array.from(this.markdownFiles.values()).find(
-      file => file.repositoryId === repositoryId && file.path === path
+      (file) => file.repositoryId === repositoryId && file.path === path
     );
   }
 
-  async createOrUpdateMarkdownFile(insertFile: InsertMarkdownFile): Promise<MarkdownFile> {
-    const existing = await this.getMarkdownFile(insertFile.repositoryId, insertFile.path);
-    
+  async createOrUpdateMarkdownFile(
+    insertFile: InsertMarkdownFile
+  ): Promise<MarkdownFile> {
+    const existing = await this.getMarkdownFile(
+      insertFile.repositoryId,
+      insertFile.path
+    );
+
     if (existing) {
       const updated: MarkdownFile = {
         ...existing,
         content: insertFile.content,
         sha: insertFile.sha,
-        lastModified: new Date()
+        lastModified: new Date(),
       };
       this.markdownFiles.set(existing.id, updated);
       return updated;
@@ -120,7 +160,7 @@ export class MemStorage implements IStorage {
       const file: MarkdownFile = {
         ...insertFile,
         id,
-        lastModified: new Date()
+        lastModified: new Date(),
       };
       this.markdownFiles.set(id, file);
       return file;
@@ -137,7 +177,7 @@ export class MemStorage implements IStorage {
   async deleteRepository(id: number): Promise<void> {
     // Delete the repository
     this.repositories.delete(id);
-    
+
     // Delete all associated markdown files
     const filesToDelete = [];
     for (const [fileId, file] of this.markdownFiles.entries()) {
@@ -145,7 +185,7 @@ export class MemStorage implements IStorage {
         filesToDelete.push(fileId);
       }
     }
-    
+
     for (const fileId of filesToDelete) {
       this.markdownFiles.delete(fileId);
     }
