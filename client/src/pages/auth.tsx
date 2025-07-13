@@ -74,7 +74,7 @@ export default function Auth() {
             />
           </div>
           <CardTitle className="text-2xl font-bold text-github-dark">
-            GitMarkDownload
+            MD2PDF.Download
           </CardTitle>
           <CardDescription>
             Edit GitHub repository Markdown files with real-time preview

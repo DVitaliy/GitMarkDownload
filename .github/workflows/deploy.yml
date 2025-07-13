@@ -1,0 +1,36 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy over SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clone & deploy on remote server
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+
+            if [ ! -d /var/www/md2pdf ]; then
+              echo "📦 Cloning repository..."
+              git clone git@github.com:DVitaliy/md2pdf.download.git /var/www/md2pdf
+            fi
+
+            cd /var/www/md2pdf
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            echo "🐳 Building and starting container..."
+            docker-compose up -d --build
