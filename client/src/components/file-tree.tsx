@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, RefreshCw, FileText } from "lucide-react";
@@ -17,25 +23,30 @@ interface FileTreeProps {
   onRefreshRepositories: () => void;
 }
 
-export default function FileTree({ 
-  repositories, 
-  selectedRepo, 
-  onRepoSelect, 
-  selectedFile, 
+export default function FileTree({
+  repositories,
+  selectedRepo,
+  onRepoSelect,
+  selectedFile,
   onFileSelect,
   isLoading,
-  onRefreshRepositories
+  onRefreshRepositories,
 }: FileTreeProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: files, isLoading: filesLoading, refetch: refetchFiles } = useQuery<GitHubFile[]>({
+  const {
+    data: files,
+    isLoading: filesLoading,
+    refetch: refetchFiles,
+  } = useQuery<GitHubFile[]>({
     queryKey: ["/api/repositories", selectedRepo?.id, "files"],
     enabled: !!selectedRepo && !!selectedRepo.id,
   });
 
-  const filteredFiles = files?.filter((file: GitHubFile) =>
-    file.path.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredFiles =
+    files?.filter((file: GitHubFile) =>
+      file.path.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
 
   if (isLoading) {
     return (
@@ -58,10 +69,10 @@ export default function FileTree({
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Repository
           </label>
-          <Select 
-            value={selectedRepo?.id?.toString()} 
+          <Select
+            value={selectedRepo?.id?.toString()}
             onValueChange={(value) => {
-              const repo = repositories.find(r => r.id.toString() === value);
+              const repo = repositories.find((r) => r.id.toString() === value);
               if (repo) onRepoSelect(repo);
             }}
           >
@@ -77,7 +88,7 @@ export default function FileTree({
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="relative">
           <Input
             type="text"
@@ -98,9 +109,9 @@ export default function FileTree({
             </div>
             <Button
               onClick={() => {
-                onRefreshRepositories(); // Сначала обновить репозитории
+                onRefreshRepositories();
                 if (selectedRepo?.id) {
-                  refetchFiles(); // Обновить файлы только если есть выбранный репозиторий
+                  refetchFiles();
                 }
               }}
               variant="ghost"
@@ -108,10 +119,12 @@ export default function FileTree({
               className="h-6 w-6 p-0 text-gray-300 hover:text-white hover:bg-gray-600 border border-gray-600"
               disabled={filesLoading}
             >
-              <RefreshCw className={`h-3 w-3 ${filesLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-3 w-3 ${filesLoading ? "animate-spin" : ""}`}
+              />
             </Button>
           </div>
-          
+
           {filesLoading ? (
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
@@ -129,13 +142,19 @@ export default function FileTree({
                 key={file.path}
                 onClick={() => onFileSelect(file.path)}
                 className={`cursor-pointer px-3 py-2 rounded-lg transition-colors duration-150 border ${
-                  selectedFile === file.path 
-                    ? 'bg-blue-600 border-blue-500 text-white' 
-                    : 'bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700 hover:border-gray-500 hover:text-white'
+                  selectedFile === file.path
+                    ? "bg-blue-600 border-blue-500 text-white"
+                    : "bg-gray-800 border-gray-600 text-gray-200 hover:bg-gray-700 hover:border-gray-500 hover:text-white"
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <FileText className={`h-4 w-4 ${selectedFile === file.path ? 'text-blue-200' : 'text-blue-400'}`} />
+                  <FileText
+                    className={`h-4 w-4 ${
+                      selectedFile === file.path
+                        ? "text-blue-200"
+                        : "text-blue-400"
+                    }`}
+                  />
                   <span className="text-sm truncate">{file.path}</span>
                 </div>
               </div>

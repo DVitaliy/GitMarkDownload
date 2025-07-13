@@ -7,7 +7,12 @@ import FileTree from "@/components/file-tree";
 import MarkdownEditor from "@/components/markdown-editor";
 import MarkdownPreview from "@/components/markdown-preview";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Repository, User, MarkdownFile, GitHubFile } from "@/../../shared/schema";
+import {
+  Repository,
+  User,
+  MarkdownFile,
+  GitHubFile,
+} from "@/../../shared/schema";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -19,7 +24,11 @@ export default function Home() {
     queryKey: ["/api/auth/me"],
   });
 
-  const { data: repositories, isLoading: reposLoading, refetch: refetchRepositories } = useQuery<Repository[]>({
+  const {
+    data: repositories,
+    isLoading: reposLoading,
+    refetch: refetchRepositories,
+  } = useQuery<Repository[]>({
     queryKey: ["/api/repositories"],
     enabled: !!user,
   });
@@ -36,7 +45,7 @@ export default function Home() {
 
   useEffect(() => {
     if (userLoading) return;
-    
+
     if (!user) {
       setLocation("/auth");
       return;
@@ -47,7 +56,6 @@ export default function Home() {
     if (repositories && repositories.length > 0 && !selectedRepo) {
       setSelectedRepo(repositories[0]);
     } else if (repositories && repositories.length === 0 && selectedRepo) {
-      // Если репозитории больше нет, сбросить выбор
       setSelectedRepo(null);
       setSelectedFile("");
       setMarkdownContent("");
@@ -55,12 +63,14 @@ export default function Home() {
   }, [repositories, selectedRepo]);
 
   useEffect(() => {
-    // Сбросить выбранный файл если в репозитории нет markdown файлов
     if (markdownFiles && markdownFiles.length === 0) {
       setSelectedFile("");
       setMarkdownContent("");
-    } else if (markdownFiles && markdownFiles.length > 0 && !markdownFiles.find((f: GitHubFile) => f.path === selectedFile)) {
-      // Выбрать первый файл если текущий не найден
+    } else if (
+      markdownFiles &&
+      markdownFiles.length > 0 &&
+      !markdownFiles.find((f: GitHubFile) => f.path === selectedFile)
+    ) {
       setSelectedFile(markdownFiles[0].path);
     }
   }, [markdownFiles, selectedFile]);
@@ -71,7 +81,6 @@ export default function Home() {
     }
   }, [fileContent]);
 
-  // Show loading while checking authentication or if not authenticated
   if (userLoading || !user) {
     return (
       <div className="h-screen flex flex-col">
@@ -86,17 +95,17 @@ export default function Home() {
                 <Skeleton className="h-full w-full bg-gray-700" />
               </div>
             </Panel>
-            
+
             <PanelResizeHandle className="w-1 bg-github-border" />
-            
+
             <Panel defaultSize={37.5} minSize={20}>
               <div className="h-full border-r border-github-border">
                 <Skeleton className="h-full w-full" />
               </div>
             </Panel>
-            
+
             <PanelResizeHandle className="w-1 bg-github-border" />
-            
+
             <Panel defaultSize={37.5} minSize={20}>
               <div className="h-full">
                 <Skeleton className="h-full w-full" />
@@ -110,15 +119,12 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col bg-white text-github-dark overflow-hidden">
-      <Header 
-        user={user} 
-        currentRepo={selectedRepo}
-      />
-      
+      <Header user={user} currentRepo={selectedRepo} />
+
       <div className="flex-1 min-h-0">
         <PanelGroup direction="horizontal" className="h-full">
           <Panel defaultSize={25} minSize={15} maxSize={40}>
-            <FileTree 
+            <FileTree
               repositories={repositories || []}
               selectedRepo={selectedRepo}
               onRepoSelect={setSelectedRepo}
@@ -128,11 +134,11 @@ export default function Home() {
               onRefreshRepositories={refetchRepositories}
             />
           </Panel>
-          
+
           <PanelResizeHandle className="w-2 bg-github-border hover:bg-blue-500 transition-colors duration-200 cursor-col-resize" />
-          
+
           <Panel defaultSize={37.5} minSize={20}>
-            <MarkdownEditor 
+            <MarkdownEditor
               content={markdownContent}
               onChange={setMarkdownContent}
               fileName={selectedFile}
@@ -141,11 +147,14 @@ export default function Home() {
               originalContent={fileContent?.content}
             />
           </Panel>
-          
+
           <PanelResizeHandle className="w-2 bg-github-border hover:bg-blue-500 transition-colors duration-200 cursor-col-resize" />
-          
+
           <Panel defaultSize={37.5} minSize={20}>
-            <MarkdownPreview content={markdownContent} currentRepo={selectedRepo} />
+            <MarkdownPreview
+              content={markdownContent}
+              currentRepo={selectedRepo}
+            />
           </Panel>
         </PanelGroup>
       </div>
