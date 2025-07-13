@@ -119,14 +119,14 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col bg-white text-github-dark overflow-hidden">
-      <Header user={user} currentRepo={selectedRepo ?? undefined} />
+      <Header user={user} currentRepo={selectedRepo} />
 
       <div className="flex-1 min-h-0">
         <PanelGroup direction="horizontal" className="h-full">
           <Panel defaultSize={25} minSize={15} maxSize={40}>
             <FileTree
               repositories={repositories || []}
-              selectedRepo={selectedRepo ?? undefined}
+              selectedRepo={selectedRepo}
               onRepoSelect={setSelectedRepo}
               selectedFile={selectedFile}
               onFileSelect={setSelectedFile}
@@ -143,7 +143,7 @@ export default function Home() {
               onChange={setMarkdownContent}
               fileName={selectedFile}
               isLoading={fileLoading}
-              selectedRepo={selectedRepo ?? undefined}
+              selectedRepo={selectedRepo}
               originalContent={fileContent?.content}
             />
           </Panel>
@@ -153,7 +153,7 @@ export default function Home() {
           <Panel defaultSize={37.5} minSize={20}>
             <MarkdownPreview
               content={markdownContent}
-              currentRepo={selectedRepo ?? undefined}
+              currentRepo={selectedRepo}
             />
           </Panel>
         </PanelGroup>
