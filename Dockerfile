@@ -3,7 +3,7 @@ WORKDIR /app
 
 RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.pnpm-store pnpm install --frozen-lockfile --prod
+RUN --mount=type=cache,target=/root/.pnpm-store pnpm install --frozen-lockfile
 
 FROM node:lts-alpine AS builder
 WORKDIR /app
