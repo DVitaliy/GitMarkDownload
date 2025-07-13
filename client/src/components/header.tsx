@@ -19,17 +19,14 @@ export default function Header({ user, currentRepo }: HeaderProps) {
   const logoutMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/auth/logout"),
     onSuccess: () => {
-      // Clear all client-side cache and storage
       queryClient.clear();
       localStorage.clear();
       sessionStorage.clear();
-      
-      // Also clear any GitHub-related cookies
-      document.cookie.split(";").forEach(function(c) { 
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+
+      document.cookie.split(";").forEach(function (c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
-      
-      // Force page reload to clear any cached state immediately
+
       window.location.href = "/auth?force_logout=" + Date.now();
     },
   });
@@ -58,10 +55,10 @@ export default function Header({ user, currentRepo }: HeaderProps) {
 
       <div className="flex items-center space-x-4">
         <div className="hidden md:flex items-center space-x-2 text-github-gray">
-          <img 
-            src={user.avatarUrl} 
-            alt="User avatar" 
-            className="w-6 h-6 rounded-full" 
+          <img
+            src={user.avatarUrl ?? undefined}
+            alt="User avatar"
+            className="w-6 h-6 rounded-full"
           />
           <span className="text-sm font-medium">{user.username}</span>
         </div>

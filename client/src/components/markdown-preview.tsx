@@ -13,12 +13,10 @@ interface MarkdownPreviewProps {
 
 export default function MarkdownPreview({ content, currentRepo }: MarkdownPreviewProps) {
   const downloadPDF = () => {
-    // Create a temporary element with the rendered markdown
     const element = document.createElement('div');
     const previewElement = document.querySelector('.markdown-preview');
     if (!previewElement) return;
-    
-    // Clone the content
+
     element.innerHTML = previewElement.innerHTML;
     
     element.style.padding = '20px';

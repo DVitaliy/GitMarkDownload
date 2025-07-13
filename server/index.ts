@@ -3,7 +3,6 @@ import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
-// Custom error shape used in the error handling middleware
 interface HttpError extends Error {
   status?: number;
   statusCode?: number;
@@ -13,7 +12,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Session configuration
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "git-markdown-secret-key",
@@ -21,7 +19,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );

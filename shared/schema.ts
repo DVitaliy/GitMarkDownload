@@ -60,7 +60,6 @@ export type Repository = typeof repositories.$inferSelect;
 export type InsertMarkdownFile = z.infer<typeof insertMarkdownFileSchema>;
 export type MarkdownFile = typeof markdownFiles.$inferSelect;
 
-// GitHub API types
 export interface GitHubFile {
   path: string;
   mode: string;
