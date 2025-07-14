@@ -16,7 +16,7 @@ jobs:
         run: |
           corepack enable
           pnpm install --frozen-lockfile
-          pnpm build
+          pnpm run build
 
       - name: 🧬 Create .env file
         run: |
@@ -29,9 +29,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-            dist/
-            .env
+          source: "dist/,.env"
           target: "/var/www/md2pdf/dist"
           rm: true
           strip_components: 1
