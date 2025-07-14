@@ -22,6 +22,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     let host = req.get("host");
     let protocol = req.protocol;
 
+    if (process.env.NODE_ENV === "production") {
+      protocol = "https";
+    }
+
     const redirectUri = `${protocol}://${host}/api/auth/github/callback`;
 
     console.log(`[OAuth] Final redirect URI: ${redirectUri}`);
