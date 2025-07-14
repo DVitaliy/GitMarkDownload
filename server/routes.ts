@@ -94,8 +94,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const tokenData = await tokenResponse.json();
 
-      console.log(`[OAuth Callback] Authorization tokenResponse:`, tokenData);
-
       if (tokenData.error) {
         throw new Error(
           tokenData.error_description || "Failed to get access token"
@@ -113,8 +111,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const userData = await userResponse.json();
 
-      console.log(`[OAuth Callback] Authorization userData:`, userData);
-
       let user = await storage.getUserByGithubId(userData.id.toString());
 
       if (user) {
@@ -130,9 +126,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           avatarUrl: userData.avatar_url,
         });
       }
-
-      console.log(`[OAuth Callback] Authorization user:`, user);
-      console.log(`[OAuth Callback] Authorization req.session:`, req.session);
 
       if (req.session) {
         req.session.userId = user?.id;

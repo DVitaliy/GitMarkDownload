@@ -1,5 +1,5 @@
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
@@ -8,28 +8,31 @@ import { Repository } from "@/../../shared/schema";
 
 interface MarkdownPreviewProps {
   content: string;
-  currentRepo?: Repository;
+  currentRepo: Repository | null;
 }
 
-export default function MarkdownPreview({ content, currentRepo }: MarkdownPreviewProps) {
+export default function MarkdownPreview({
+  content,
+  currentRepo,
+}: MarkdownPreviewProps) {
   const downloadPDF = () => {
-    const element = document.createElement('div');
-    const previewElement = document.querySelector('.markdown-preview');
+    const element = document.createElement("div");
+    const previewElement = document.querySelector(".markdown-preview");
     if (!previewElement) return;
 
     element.innerHTML = previewElement.innerHTML;
-    
-    element.style.padding = '20px';
-    element.style.fontFamily = 'system-ui, sans-serif';
-    element.style.lineHeight = '1.6';
-    element.style.color = '#24292f';
-    
+
+    element.style.padding = "20px";
+    element.style.fontFamily = "system-ui, sans-serif";
+    element.style.lineHeight = "1.6";
+    element.style.color = "#24292f";
+
     const options = {
       margin: 1,
-      filename: `${currentRepo?.name || 'markdown'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      filename: `${currentRepo?.name || "markdown"}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
     html2pdf().set(options).from(element).save();
@@ -39,7 +42,7 @@ export default function MarkdownPreview({ content, currentRepo }: MarkdownPrevie
     <div className="h-full bg-white flex flex-col">
       <div className="bg-github-light border-b border-github-border px-6 py-3 flex items-center justify-between">
         <span className="font-medium text-github-dark">Preview</span>
-        <Button 
+        <Button
           onClick={downloadPDF}
           className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 shadow-sm"
           size="sm"
@@ -48,7 +51,7 @@ export default function MarkdownPreview({ content, currentRepo }: MarkdownPrevie
           Download PDF
         </Button>
       </div>
-      
+
       <ScrollArea className="flex-1">
         <div className="markdown-preview markdown-content p-6">
           <ReactMarkdown
@@ -75,10 +78,12 @@ export default function MarkdownPreview({ content, currentRepo }: MarkdownPrevie
                 <ul className="list-disc list-inside mb-4 ml-4">{children}</ul>
               ),
               ol: ({ children }) => (
-                <ol className="list-decimal list-inside mb-4 ml-4">{children}</ol>
+                <ol className="list-decimal list-inside mb-4 ml-4">
+                  {children}
+                </ol>
               ),
               code: ({ children, className }) => {
-                const isBlock = className?.includes('language-');
+                const isBlock = className?.includes("language-");
                 if (isBlock) {
                   return (
                     <pre className="bg-github-light p-4 rounded-lg mb-4 overflow-x-auto">

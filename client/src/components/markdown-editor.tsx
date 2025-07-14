@@ -14,26 +14,36 @@ interface MarkdownEditorProps {
   onChange: (content: string) => void;
   fileName: string;
   isLoading: boolean;
-  selectedRepo?: Repository;
+  selectedRepo: Repository | null;
   originalContent?: string;
 }
 
-export default function MarkdownEditor({ content, onChange, fileName, isLoading, selectedRepo, originalContent }: MarkdownEditorProps) {
+export default function MarkdownEditor({
+  content,
+  onChange,
+  fileName,
+  isLoading,
+  selectedRepo,
+  originalContent,
+}: MarkdownEditorProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-
-
-  const hasChangesFromOriginal = originalContent !== undefined && content !== originalContent;
+  const hasChangesFromOriginal =
+    originalContent !== undefined && content !== originalContent;
 
   const autoSaveMutation = useMutation({
     mutationFn: (data: { repoId: number; filePath: string; content: string }) =>
-      apiRequest("PUT", `/api/repositories/${data.repoId}/files/${data.filePath}`, {
-        content: data.content,
-      }),
+      apiRequest(
+        "PUT",
+        `/api/repositories/${data.repoId}/files/${data.filePath}`,
+        {
+          content: data.content,
+        }
+      ),
     onSuccess: () => {
       setHasUnsavedChanges(false);
     },
@@ -44,15 +54,21 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
 
   const pushToGitHubMutation = useMutation({
     mutationFn: (data: { repoId: number; filePath: string; content: string }) =>
-      apiRequest("POST", `/api/repositories/${data.repoId}/files/${data.filePath}/push`, {
-        content: data.content,
-      }),
+      apiRequest(
+        "POST",
+        `/api/repositories/${data.repoId}/files/${data.filePath}/push`,
+        {
+          content: data.content,
+        }
+      ),
     onSuccess: () => {
       toast({
         title: "Pushed to GitHub",
         description: "Your changes have been synced to GitHub repository.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/repositories", selectedRepo?.id, "files", fileName] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/repositories", selectedRepo?.id, "files", fileName],
+      });
     },
     onError: () => {
       toast({
@@ -104,7 +120,9 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
     });
   };
 
-  const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+  const wordCount = content
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
   const charCount = content.length;
 
   if (isLoading) {
@@ -125,9 +143,14 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
       <div className="bg-github-light border-b border-github-border px-6 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Edit className="h-4 w-4 text-github-gray" />
-          {fileName && <span className="font-medium text-github-dark">{fileName}</span>}
+          {fileName && (
+            <span className="font-medium text-github-dark">{fileName}</span>
+          )}
           {hasUnsavedChanges && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+            <Badge
+              variant="secondary"
+              className="bg-orange-100 text-orange-800"
+            >
               Auto-saving...
             </Badge>
           )}
@@ -148,8 +171,8 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
             disabled={pushToGitHubMutation.isPending || !hasChangesFromOriginal}
             size="sm"
             className={`${
-              hasChangesFromOriginal 
-                ? "bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 shadow-sm" 
+              hasChangesFromOriginal
+                ? "bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 shadow-sm"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
@@ -167,7 +190,7 @@ export default function MarkdownEditor({ content, onChange, fileName, isLoading,
             onChange={(e) => onChange(e.target.value)}
             placeholder="Start editing your markdown..."
             className="w-full h-full p-6 font-mono text-sm leading-relaxed resize-none border-none focus:ring-0 focus:outline-none focus:border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            style={{ minHeight: '100%', boxShadow: 'none' }}
+            style={{ minHeight: "100%", boxShadow: "none" }}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
