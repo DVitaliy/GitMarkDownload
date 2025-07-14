@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 FROM node:lts-alpine AS deps
 WORKDIR /app
 RUN corepack enable
