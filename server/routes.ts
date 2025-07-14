@@ -131,6 +131,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      console.log(`[OAuth Callback] Authorization user:`, user);
+      console.log(`[OAuth Callback] Authorization req.session:`, req.session);
+
       if (req.session) {
         req.session.userId = user?.id;
         req.session.accessToken = accessToken;
