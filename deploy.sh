@@ -53,15 +53,15 @@ fi
 sudo systemctl enable docker
 sudo systemctl start docker
 
-# Clone the Git repository
-if [ -d "$APP_DIR" ]; then
-  echo "Directory $APP_DIR already exists. Pulling latest changes..."
-  cd $APP_DIR && git pull
-else
-  echo "Cloning repository from $REPO_URL..."
-  git clone $REPO_URL $APP_DIR
-  cd $APP_DIR
-fi
+# # Clone the Git repository
+# if [ -d "$APP_DIR" ]; then
+#   echo "Directory $APP_DIR already exists. Pulling latest changes..."
+#   cd $APP_DIR && git pull
+# else
+#   echo "Cloning repository from $REPO_URL..."
+#   git clone $REPO_URL $APP_DIR
+#   cd $APP_DIR
+# fi
 
 # Install Nginx
 sudo apt install nginx -y
@@ -110,6 +110,7 @@ server {
 EOL
 
 sudo ln -s /etc/nginx/sites-available/md2pdf /etc/nginx/sites-enabled/md2pdf
+sudo ln -s /home/www/md2pdf /var/www/md2pdf
 
 sudo systemctl restart nginx
 

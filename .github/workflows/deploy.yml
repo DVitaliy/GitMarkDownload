@@ -16,27 +16,21 @@ jobs:
         run: |
           corepack enable
           pnpm install --frozen-lockfile
-          pnpm run build
+          pnpm build
 
       - name: 🧬 Create .env file
         run: |
           echo "GITHUB_CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "GITHUB_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
 
-      - name: 📂 Prepare upload directory
-        run: |
-          mkdir upload
-          cp -r dist upload/
-          cp Dockerfile docker-compose.yml .env upload/
-
-      - name: 📤 Upload files to server
+      - name: 📂 Upload build and configs to server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
+          username: ${{ secrets.SSH_USERNAME }} # обычно: www
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "upload/"
-          target: "/var/www/md2pdf"
+          source: "dist/,.env,docker-compose.yml,Dockerfile"
+          target: "~/md2pdf"
           rm: true
           strip_components: 0
 
@@ -47,10 +41,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            sudo rm -rf /var/www/md2pdf
-            sudo mkdir -p /var/www/md2pdf
-            sudo chown -R www:www /var/www/md2pdf
-            # снова копируем, потому что SCP идёт до этого шага
-            docker-compose -f /var/www/md2pdf/docker-compose.yml -p md2pdf down
-            docker-compose -f /var/www/md2pdf/docker-compose.yml -p md2pdf build --no-cache
-            docker-compose -f /var/www/md2pdf/docker-compose.yml -p md2pdf up -d
+            docker-compose -f ~/md2pdf/docker-compose.yml -p md2pdf down || true
+            rm -rf ~/md2pdf
+            mkdir -p ~/md2pdf
+
+            docker-compose -f ~/md2pdf/docker-compose.yml -p md2pdf build --no-cache
+            docker-compose -f ~/md2pdf/docker-compose.yml -p md2pdf up -d
