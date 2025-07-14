@@ -68,7 +68,7 @@ export default function Auth() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <img
-              src="/logo.png"
+              src="/logo_200x200.png"
               alt="md2pdf.download Logo"
               className="h-28 w-28"
             />
