@@ -137,9 +137,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.session) {
         req.session.userId = user?.id;
         req.session.accessToken = accessToken;
+        req.session.save((err) => {
+          if (err) {
+            console.error("Session save error:", err);
+            return res.redirect("/?auth=error");
+          }
+          res.redirect("/?auth=success");
+        });
       }
 
-      res.redirect("/?auth=success");
+      console.error("OAuth error: no req.session");
     } catch (error) {
       console.error("OAuth error:", error);
       res.redirect("/?auth=error");

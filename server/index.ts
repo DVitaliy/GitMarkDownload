@@ -11,7 +11,7 @@ interface HttpError extends Error {
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "git-markdown-secret-key",
@@ -19,6 +19,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
