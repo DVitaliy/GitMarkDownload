@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import "dotenv/config";
 
 declare module "express-session" {
   interface SessionData {
@@ -9,9 +10,8 @@ declare module "express-session" {
   }
 }
 
-const GITHUB_CLIENT_ID =
-  process.env.GITHUB_CLIENT_ID || process.env.VITE_GITHUB_CLIENT_ID || "";
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || "";
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID ?? "";
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET ?? "";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/auth/github", (req, res) => {
@@ -426,7 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         repositoryId: parseInt(repoId),
         path: filePath,
         content,
-        sha: "local", 
+        sha: "local",
       });
 
       console.log(
@@ -481,7 +481,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const updatePayload = {
           message: `Update ${filePath} via GitMarkDownload`,
           content: Buffer.from(content).toString("base64"),
-          ...(sha && { sha }), 
+          ...(sha && { sha }),
         };
 
         const updateResponse = await fetch(

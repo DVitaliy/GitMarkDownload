@@ -16,7 +16,12 @@ jobs:
         run: |
           corepack enable
           pnpm install --frozen-lockfile
-          pnpm run build
+          pnpm build
+
+      - name: 🧬 Create .env file
+        run: |
+          echo "GITHUB_CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "GITHUB_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
 
       - name: 📂 Upload build to server
         uses: appleboy/scp-action@v1.0.0
@@ -24,7 +29,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/"
+          source: |
+            dist/
+            .env
           target: "/var/www/md2pdf/dist"
           rm: true
           strip_components: 1
