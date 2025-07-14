@@ -1,50 +1,43 @@
-name: Build and Deploy
+name: Deploy to Production
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 🛒 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Enable Corepack + Install dependencies
+      - name: 📦 Build project
         run: |
           corepack enable
           pnpm install --frozen-lockfile
+          pnpm run build
 
-      - name: Build project
-        run: pnpm run build
-
-      - name: Upload build via SSH
-        uses: appleboy/scp-action@v0.1.7
+      - name: 📂 Upload build to server
+        uses: appleboy/scp-action@v1.0.0
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: www
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/*"
+          source: "dist/"
           target: "/var/www/md2pdf/dist"
+          rm: true
+          strip_components: 1
 
-      - name: Upload Dockerfile and package.json (если нужно)
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: www
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "Dockerfile,package.json,pnpm-lock.yaml,docker-compose.yml"
-          target: "/var/www/md2pdf/"
-
-      - name: Restart app via SSH
+      - name: 🚀 Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.2.2
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: www
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/md2pdf
+            git pull origin main || true
             docker-compose down
-            docker-compose up -d --build
+            docker-compose build --no-cache
+            docker-compose up -d
