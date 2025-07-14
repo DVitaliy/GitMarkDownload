@@ -23,16 +23,22 @@ jobs:
           echo "GITHUB_CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "GITHUB_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
 
-      - name: 📂 Upload build to server
+      - name: 📂 Prepare upload directory
+        run: |
+          mkdir upload
+          cp -r dist upload/
+          cp Dockerfile docker-compose.yml .env upload/
+
+      - name: 📤 Upload files to server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/,.env"
-          target: "/var/www/md2pdf/dist"
+          source: "upload/"
+          target: "/var/www/md2pdf"
           rm: true
-          strip_components: 1
+          strip_components: 0
 
       - name: 🚀 Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.2.2
@@ -41,8 +47,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/md2pdf
-            git pull origin main || true
-            docker-compose down
-            docker-compose build --no-cache
-            docker-compose up -d
+            sudo rm -rf /var/www/md2pdf
+            sudo mkdir -p /var/www/md2pdf
+            sudo chown -R www:www /var/www/md2pdf
+            # снова копируем, потому что SCP идёт до этого шага
+            docker-compose -f /var/www/md2pdf/docker-compose.yml -p md2pdf down
+            docker-compose -f /var/www/md2pdf/docker-compose.yml -p md2pdf build --no-cache
+            docker-compose -f /var/www/md2pdf/docker-compose.yml -p md2pdf up -d
