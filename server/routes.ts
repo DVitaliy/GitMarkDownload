@@ -94,6 +94,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const tokenData = await tokenResponse.json();
 
+      console.log(`[OAuth Callback] Authorization tokenResponse:`, tokenData);
+
       if (tokenData.error) {
         throw new Error(
           tokenData.error_description || "Failed to get access token"
@@ -110,6 +112,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const userData = await userResponse.json();
+
+      console.log(`[OAuth Callback] Authorization userData:`, userData);
 
       let user = await storage.getUserByGithubId(userData.id.toString());
 
