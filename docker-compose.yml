@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   app:
+    container_name: md2pdf-app
     build: .
     ports:
       - "5001:5001"
@@ -13,3 +14,5 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    volumes:
+      - ./logs:/app/logs

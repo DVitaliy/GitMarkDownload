@@ -1,19 +1,10 @@
-# syntax=docker/dockerfile:1.4
+FROM node:lts-alpine
 
-FROM node:lts-alpine AS deps
 WORKDIR /app
-RUN corepack enable
+
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.pnpm-store \
-    pnpm install --frozen-lockfile
+RUN corepack enable && pnpm install --frozen-lockfile
 
-FROM deps AS builder
-WORKDIR /app
-COPY . .
-RUN pnpm run build
+COPY dist ./dist
 
-FROM node:lts-alpine AS production
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=deps /app/node_modules ./node_modules
 CMD ["node", "dist/index.js"]
