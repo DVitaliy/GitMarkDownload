@@ -69,8 +69,8 @@ export default function Auth() {
           <div className="flex items-center justify-center mb-4">
             <img
               src="/logo.png"
-              alt="GitMarkDownload Logo"
-              className="h-16 w-16"
+              alt="md2pdf.download Logo"
+              className="h-28 w-28"
             />
           </div>
           <CardTitle className="text-2xl font-bold text-github-dark">

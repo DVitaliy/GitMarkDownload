@@ -490,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const updatePayload = {
-          message: `Update ${filePath} via GitMarkDownload`,
+          message: `Update ${filePath} via md2pdf.download`,
           content: Buffer.from(content).toString("base64"),
           ...(sha && { sha }),
         };

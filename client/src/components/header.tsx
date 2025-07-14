@@ -24,27 +24,25 @@ export default function Header({ user, currentRepo }: HeaderProps) {
       sessionStorage.clear();
 
       document.cookie.split(";").forEach(function (c) {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
 
       window.location.href = "/auth?force_logout=" + Date.now();
     },
   });
 
-
-
   return (
     <header className="bg-white border-b border-github-border px-6 py-3 flex items-center justify-between h-16">
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <img 
-            src="/logo.png" 
-            alt="GitMarkDownload Logo" 
-            className="h-8 w-8"
-          />
-          <span className="text-xl font-bold text-github-dark">GitMarkDownload</span>
+          <img src="/logo.png" alt="md2pdf.download Logo" className="h-8 w-8" />
+          <span className="text-xl font-bold text-github-dark">
+            MD2PDF.download
+          </span>
         </div>
-        
+
         {currentRepo && (
           <div className="hidden md:flex items-center space-x-2 text-github-gray">
             <GitBranch className="h-4 w-4" />
@@ -62,8 +60,6 @@ export default function Header({ user, currentRepo }: HeaderProps) {
           />
           <span className="text-sm font-medium">{user.username}</span>
         </div>
-
-
 
         <Button
           onClick={() => logoutMutation.mutate()}
