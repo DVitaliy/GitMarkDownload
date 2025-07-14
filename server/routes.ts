@@ -18,16 +18,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log(`[OAuth] Starting GitHub OAuth flow`);
     console.log(`[OAuth] Request headers host: ${req.get("host")}`);
     console.log(`[OAuth] Request protocol: ${req.protocol}`);
-    console.log(`[OAuth] REPLIT_DOMAINS env: ${process.env.REPLIT_DOMAINS}`);
 
     let host = req.get("host");
     let protocol = req.protocol;
-
-    if (process.env.REPLIT_DOMAINS) {
-      host = process.env.REPLIT_DOMAINS;
-      protocol = "https";
-      console.log(`[OAuth] Using Replit domain: ${host}`);
-    }
 
     const redirectUri = `${protocol}://${host}/api/auth/github/callback`;
 

@@ -29,7 +29,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/,.env,docker-compose.yml,Dockerfile,pnpm-lock.yaml,package.json"
+          source: "dist/,.env,docker-compose.yml,Dockerfile,pnpm-lock.yaml,package.json,pnpm-workspace.yaml"
           target: "~/_md2pdf"
           rm: true
           strip_components: 0

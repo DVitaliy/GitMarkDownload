@@ -4,6 +4,8 @@ services:
   app:
     container_name: md2pdf-app
     build: .
+    env_file:
+      - .env
     ports:
       - "5001:5001"
     environment:
