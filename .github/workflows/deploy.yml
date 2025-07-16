@@ -46,8 +46,8 @@ jobs:
 
             cd ~/md2pdf
 
-            docker-compose -p md2pdf down || true
-            docker image prune -f --filter "label=com.docker.compose.project=md2pdf"
-
-            docker-compose -p md2pdf build --no-cache
+            docker-compose -p md2pdf down --rmi all --volumes --remove-orphans || true
+            docker rmi -f md2pdf-app:latest 2>/dev/null || true
+            docker-compose -p md2pdf build --no-cache --pull
             docker-compose -p md2pdf up -d
+            docker system prune -af --filter "label=com.docker.compose.project=md2pdf"
