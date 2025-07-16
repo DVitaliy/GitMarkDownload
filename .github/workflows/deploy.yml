@@ -41,10 +41,13 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker-compose -f ~/md2pdf/docker-compose.yml -p md2pdf down || true
             rm -rf ~/md2pdf
             mv ~/_md2pdf ~/md2pdf
-            rm -rf ~/_md2pdf
 
-            docker-compose -f ~/md2pdf/docker-compose.yml -p md2pdf build --no-cache
-            docker-compose -f ~/md2pdf/docker-compose.yml -p md2pdf up -d
+            cd ~/md2pdf
+
+            docker-compose -p md2pdf down || true
+            docker image prune -f --filter "label=com.docker.compose.project=md2pdf"
+
+            docker-compose -p md2pdf build --no-cache
+            docker-compose -p md2pdf up -d
