@@ -15,7 +15,7 @@ jobs:
       - name: 📦 Build project
         run: |
           corepack enable
-          pnpm install --frozen-lockfile
+          pnpm install --prod --frozen-lockfile
           pnpm build
 
       - name: 🧬 Create .env file
